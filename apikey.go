@@ -135,11 +135,9 @@ func (a *APIKeyAuth) matchIP(clientIP string, allowedIPs []string) bool {
 			if ip != nil && ipNet.Contains(ip) {
 				return true
 			}
-		} else {
+		} else if clientIP == allowedIP {
 			// Direct IP match
-			if clientIP == allowedIP {
-				return true
-			}
+			return true
 		}
 	}
 	return false
@@ -264,5 +262,5 @@ func (a *APIKeyAuth) denyAccess(rw http.ResponseWriter, message string) {
 </body>
 </html>`, message)
 
-	rw.Write([]byte(html))
+	_, _ = rw.Write([]byte(html))
 }
