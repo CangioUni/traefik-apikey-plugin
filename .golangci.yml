@@ -1,0 +1,90 @@
+run:
+  timeout: 5m
+  go: '1.21'
+  tests: true
+
+linters:
+  enable:
+    # region - default linters
+    - errcheck      # Check for unchecked errors
+    - govet         # Vet examines Go source code
+    - ineffassign   # Detect ineffectual assignments
+    - staticcheck   # Static analysis checks
+    - unused        # Check for unused code
+    # endregion - default linters
+
+    # region - additional linters
+    - cyclop        # Check cyclomatic complexity
+    - decorder      # Check declaration order
+    - funlen        # Check function length
+    - goconst       # Find repeated strings
+    - gocritic      # Opinionated Go linter
+    - gosec         # Security checker
+    - grouper       # Group import/const/var/type declarations
+    - nilnil        # Check returning nil nil
+    - unconvert     # Remove unnecessary type conversions
+    - unparam       # Find unused function parameters
+    # endregion - additional linters
+
+formatters:
+  enable:
+    - gofmt         # Check formatting
+    - gofumpt       # Stricter gofmt
+    - goimports     # Check import formatting
+    - gci           # Control import order
+
+linters-settings:
+  gofumpt:
+    extra-rules: true
+
+  cyclop:
+    max-complexity: 20
+
+  funlen:
+    lines: 100
+    statements: 50
+
+  govet:
+    enable-all: true
+    disable:
+      - shadow
+
+  gosec:
+    excludes:
+      - G404 # Use of weak random number generator (math/rand instead of crypto/rand)
+
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(github.com/CangioUni/traefik-geoblock-plugin)
+
+issues:
+  exclude-dirs:
+    - vendor
+    - .github
+
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - funlen
+        - goconst
+        - gosec
+
+    # Exclude known false positives
+    - linters:
+        - staticcheck
+      text: "SA1019:" # Ignore deprecation warnings for now
+
+  # Maximum issues count per one linter
+  max-issues-per-linter: 0
+
+  # Maximum count of issues with the same text
+  max-same-issues: 0
+
+  # Show all issues from a linter
+  new: false
+
+  # Fix found issues (if supported by the linter)
+  fix: true
