@@ -1,0 +1,92 @@
+# Example Traefik Configuration for API Key Plugin
+# This file shows various usage examples of the API key authentication plugin
+
+# Static configuration
+experimental:
+  plugins:
+    apikey:
+      moduleName: github.com/CangioUni/traefik-apikey-plugin
+      version: v1.0.0
+
+# Dynamic configuration
+http:
+  middlewares:
+    # Example 1: Basic authentication with wildcard subdomain
+    basic-apikey:
+      plugin:
+        apikey:
+          headerName: X-API-Key
+          authorizedKeys:
+            - key: "your-secret-api-key-here"
+              subdomains:
+                - "*"
+
+    # Example 2: Multiple API keys with different subdomain access
+    multi-apikey:
+      plugin:
+        apikey:
+          headerName: X-API-Key
+          authorizedKeys:
+            - key: "api-key-for-main-domain"
+              subdomains:
+                - "api.example.com"
+            - key: "api-key-for-admin"
+              subdomains:
+                - "admin.example.com"
+            - key: "api-key-for-all-internal"
+              subdomains:
+                - "*.internal.example.com"
+
+    # Example 3: IP-restricted API keys
+    ip-restricted-apikey:
+      plugin:
+        apikey:
+          headerName: X-API-Key
+          authorizedKeys:
+            - key: "office-api-key"
+              subdomains:
+                - "*"
+              allowedIPs:
+                - "203.0.113.0/24"      # Office network
+                - "198.51.100.50"       # Specific server
+            - key: "datacenter-key"
+              subdomains:
+                - "internal.example.com"
+              allowedIPs:
+                - "192.168.0.0/16"      # Private network
+
+    # Example 4: Custom header name (e.g., for Bearer tokens)
+    bearer-auth:
+      plugin:
+        apikey:
+          headerName: Authorization
+          authorizedKeys:
+            - key: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+              subdomains:
+                - "*"
+
+  routers:
+    # Example router using the basic-apikey middleware
+    api-router:
+      rule: "Host(`api.example.com`)"
+      service: api-service
+      middlewares:
+        - basic-apikey
+
+    # Example router using the multi-apikey middleware
+    admin-router:
+      rule: "Host(`admin.example.com`)"
+      service: admin-service
+      middlewares:
+        - multi-apikey
+
+  services:
+    api-service:
+      loadBalancer:
+        servers:
+          - url: "http://backend:8080"
+    
+    admin-service:
+      loadBalancer:
+        servers:
+          - url: "http://admin-backend:8080"
