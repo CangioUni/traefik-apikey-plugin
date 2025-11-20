@@ -1,0 +1,18 @@
+displayName: API Key Authentication Plugin
+type: middleware
+
+import: github.com/CangioUni/traefik-apikey-plugin
+
+summary: Authentication plugin based on API key in request header
+
+testData:
+  headerName: X-API-Key
+  authorizedKeys:
+    - key: test-api-key-1
+      subdomains:
+        - "*"
+    - key: test-api-key-2
+      subdomains:
+        - "api.example.com"
+      allowedIPs:
+        - "192.168.1.100"
